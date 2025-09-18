@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <springProfile name="default,dev">
+        <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+        <appender name="ROLLING-FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <encoder>
+                <pattern>${FILE_LOG_PATTERN}</pattern>
+            </encoder>
+            <file>${LOG_FILE}</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>${LOG_FILE}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                <maxFileSize>100MB</maxFileSize>
+                <maxHistory>30</maxHistory>
+                <totalSizeCap>20GB</totalSizeCap>
+            </rollingPolicy>
+        </appender>
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="ROLLING-FILE"/>
+        </root>
+        <logger name="org.quartz" level="INFO"/>
+    </springProfile>
+
+
+
+    <springProfile name="demo,prod">
+        <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+        <appender name="ROLLING-FILE-INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <!-- Log Level form low to high: TRACE, DEBUG, INFO, WARN, ERROR -->
+            <!-- ThresholdFilter:  log level equal or higher than INFO will be logged.  -->
+            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+                <level>INFO</level>
+            </filter>
+            <encoder>
+                <pattern>%date %-4relative [%thread] [%level] %logger{35} - %msg %n</pattern>
+            </encoder>
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>${LOG_FILE}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                <maxFileSize>100MB</maxFileSize>
+                <maxHistory>30</maxHistory>
+                <totalSizeCap>20GB</totalSizeCap>
+            </rollingPolicy>
+        </appender>
+
+        <!-- logger to log only trace level and info level logs -->
+        <logger name="org.demo.springdemo" additivity="false" level="trace">
+            <appender-ref ref="ROLLING-FILE-API-TRACE"/>
+            <appender-ref ref="ROLLING-FILE-INFO"/>
+        </logger>
+
+        <root level="info">
+            <appender-ref ref="ROLLING-FILE-INFO"/>
+        </root>
+        <!-- logger name="org.quartz" additivity="false" level="DEBUG"><appender-ref ref="ROLLING-FILE-DEBUG"/></logger -->
+    </springProfile>
+</configuration>
